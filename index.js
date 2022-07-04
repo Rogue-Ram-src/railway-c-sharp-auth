@@ -8,8 +8,8 @@ const crypto = require("crypto");
 const passhash = require("./passwords");
 const mongoose = require("mongoose");
 const userModel = require("./db/users");
-const server = http.listen(8080, () => {
-  console.log("listening on port: *8080");
+const server = http.listen(process.env.PORT, () => {
+  console.log("Auth server started");
 });
 
 mongoose.connect(
