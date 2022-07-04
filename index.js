@@ -11,18 +11,18 @@ const userModel = require("./db/users");
 const server = http.listen(8080, () => {
   console.log("listening on port: *8080");
 });
-console.log(dbkey)
-/*mongoose.connect(
-  `${config.dbkey}`,
+
+mongoose.connect(
+  `${process.env.dbstring}`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   }
-);*/
+);
 
 app.post("/create", async (req, res) => {
     console.log(req.body)
-  if ( req.body.authkey == "config.authkey") {
+  if ( req.body.authkey == process.env.authkey) {
     var random = null;
     random = passhash.random(30);
     passhash.create(random, (hash) => {
@@ -37,7 +37,7 @@ app.post("/create", async (req, res) => {
 
 app.post("/remove", async (req, res) => {
   console.log(req.body)
-if ( req.body.authkey == config.authkey || req.body.key) {
+if ( req.body.authkey == process.env.authkey || req.body.key) {
   passhash.create(req.body.key, async (hash) => {
     const data = await userModel.findOne({
       hash: hash,
