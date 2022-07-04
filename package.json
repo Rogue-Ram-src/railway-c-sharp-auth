@@ -1,0 +1,25 @@
+{
+  "name": "c-sharp-auth",
+  "version": "1.0.0",
+  "description": "Secure your c-Sharp app",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevTime-src/C-Sharp-Auth.git"
+  },
+  "author": "Rogue_Ram",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/DevTime-src/C-Sharp-Auth/issues"
+  },
+  "homepage": "https://github.com/DevTime-src/C-Sharp-Auth#readme",
+  "dependencies": {
+    "body-parser": "^1.19.2",
+    "crypto": "^1.0.1",
+    "express": "^4.17.3",
+    "mongoose": "^6.2.5"
+  }
+}
