@@ -11,7 +11,7 @@ const userModel = require("./db/users");
 const server = http.listen(8080, () => {
   console.log("listening on port: *8080");
 });
-console.log($dbkey)
+console.log(dbkey)
 /*mongoose.connect(
   `${config.dbkey}`,
   {
