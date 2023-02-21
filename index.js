@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const http = require("http").Server(app);
+const encryption = require("./encryption")
+const validate = require("./validate")
 const bodyParser = require("body-parser");
 app.use(express.json());
 app.use(express.static("views"));
@@ -8,7 +10,7 @@ const crypto = require("crypto");
 const passhash = require("./passwords");
 const mongoose = require("mongoose");
 const userModel = require("./db/users");
-const server = http.listen(process.env.PORT, () => {
+const server = http.listen(process.env.PORT||8080, async ()  =>  {
   console.log("Auth server started");
 });
 
@@ -21,7 +23,6 @@ mongoose.connect(
 );
 
 app.post("/create", async (req, res) => {
-    console.log(req.body)
   if ( req.body.authkey == process.env.authkey) {
     var random = null;
     random = passhash.random(30);
@@ -36,8 +37,7 @@ app.post("/create", async (req, res) => {
 });
 
 app.post("/remove", async (req, res) => {
-  console.log(req.body)
-if ( req.body.authkey == process.env.authkey || req.body.key) {
+if ( req.body.authkey == process.env.authkey && req.body.key) {
   passhash.create(req.body.key, async (hash) => {
     const data = await userModel.findOne({
       hash: hash,
@@ -58,21 +58,34 @@ if ( req.body.authkey == process.env.authkey || req.body.key) {
 });
 
 app.post("/auth", async (req, res) => {
-
-  if (req.body.key) {
-    passhash.create(req.body.key, async (hash) => {
-      const data = await userModel.findOne({
-        hash: hash,
-      });
-      if (data) {
-        res.status(200);
-        res.send("Auth Successful");
-        return
-      }
-      else {
-        res.status(200);
-        res.send("Unauthorized");  
-      }
-    });
-}
+  if(req.body && req.body.data){
+    const body = await encryption.decrypt(req.body.data)
+    if(await validate.validateRequestBody(body)){
+      if (body.key) {
+        const now =  new Date();
+        passhash.create(body.key, async (hash) => {
+          const data = await userModel.findOne({
+            hash: hash,
+          });
+          if (data) {
+            const response = await encryption.encrypt({"Text":"Authorized","Timestamp":now.toISOString()})
+            res.status(200)
+            res.send(response)
+            return
+          }
+          else {
+            const response = await encryption.encrypt({"Text":"Unauthorized","Timestamp":now.toISOString()})
+            res.status(200)
+            res.send(response)
+          }
+        });
+    }
+    }else{
+      res.status(400)
+      res.send("Invalid Request")
+    }
+  }else{
+    res.status(400)
+    res.send("Invalid Request")
+  }
 });
