@@ -15,7 +15,7 @@ const server = http.listen(process.env.PORT||8080, async ()  =>  {
 });
 
 mongoose.connect(
-  `${process.env.dbstring}`,
+  `${process.env.MONGO_URL}`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -62,19 +62,19 @@ app.post("/auth", async (req, res) => {
     const body = await encryption.decrypt(req.body.data)
     if(await validate.validateRequestBody(body)){
       if (body.key) {
-        const now =  new Date();
+        const now =  Date.now();
         passhash.create(body.key, async (hash) => {
           const data = await userModel.findOne({
             hash: hash,
           });
           if (data) {
-            const response = await encryption.encrypt({"Text":"Authorized","Timestamp":now.toISOString()})
+            const response = await encryption.encrypt({"Text":"Authorized","Timestamp":now})
             res.status(200)
             res.send(response)
             return
           }
           else {
-            const response = await encryption.encrypt({"Text":"Unauthorized","Timestamp":now.toISOString()})
+            const response = await encryption.encrypt({"Text":"Unauthorized","Timestamp":now})
             res.status(200)
             res.send(response)
           }
